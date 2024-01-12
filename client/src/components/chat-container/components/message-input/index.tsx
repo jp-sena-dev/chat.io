@@ -12,7 +12,7 @@ export function MessageInput({ message, setMessage, HandleSubmit }: InputMessage
   return (
     <Box
       component="form"
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={(e) => { e.preventDefault(); HandleSubmit(message); }}
       sx={{
         p: '2px 4px',
         display: 'flex',
@@ -32,7 +32,7 @@ export function MessageInput({ message, setMessage, HandleSubmit }: InputMessage
         sx={{ ml: 1, flex: 1 }}
         placeholder="Type message"
       />
-      <IconButton type="submit" onClick={() => HandleSubmit(message)} sx={{ p: '10px' }}>
+      <IconButton type="submit" sx={{ p: '10px' }}>
         <SendIcon />
       </IconButton>
     </Box>
