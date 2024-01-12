@@ -16,8 +16,8 @@ import {
 } from 'firebase/storage';
 import { auth, db } from '../firebase-config';
 import { useAuth } from './auth-context';
+import { socket } from '../App';
 // eslint-disable-next-line import/no-cycle
-import { socket } from '../components/chat-container';
 
 interface RoomProviderProps {
   children: JSX.Element;

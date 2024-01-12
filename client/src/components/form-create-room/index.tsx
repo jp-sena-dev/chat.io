@@ -1,8 +1,11 @@
 import {
-  Avatar, Box, Button, IconButton, TextField, Typography, styled,
+  Box,
+  IconButton,
+  TextField,
+  Typography,
+  styled,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
 import { useState } from 'react';
 import { useRooms } from '../../contexts/rooms';
