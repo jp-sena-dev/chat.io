@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import io from 'socket.io-client';
 import {
   Box,
   IconButton,
@@ -10,6 +9,7 @@ import { MessageContainer, MessageData } from './components/message';
 import { MessageInput } from './components/message-input';
 import { RoomCollection, useRooms } from '../../contexts/rooms';
 import { auth } from '../../firebase-config';
+import { socket } from '../../App';
 
 interface ChatContainerProps {
   username: string;
@@ -17,24 +17,21 @@ interface ChatContainerProps {
   handleShowChatSettings: () => void;
 }
 
-export const socket = io(import.meta.env.VITE_SERVER_URL as string, { transports: ['websocket'] });
-
 export function ChatContainer({ username, room, handleShowChatSettings }: ChatContainerProps) {
   const { sendMessage, getMessages, getUserRooms } = useRooms();
   const messageRef = useRef(null);
   const [clientMessage, setClientMesssage] = useState('');
   const [serverMessages, setServerMassages] = useState<MessageData[]>();
   const [currentRoomId, setCurrentRoomId] = useState('');
-
   useEffect(() => {
     if (room.id !== currentRoomId) {
-      console.log('a');
-      socket.emit('joinRoom', { username, room: room.id, userId: auth.currentUser?.uid });
+      if (currentRoomId) socket.emit('leaveRoom', currentRoomId);
       setServerMassages([]);
       (async () => {
         const currentMessages = await getMessages(room.id);
         setServerMassages(currentMessages);
       })();
+      socket.emit('joinRoom', { username, room: room.id, userId: auth.currentUser?.uid });
       setCurrentRoomId(room.id);
     }
   }, [currentRoomId, getMessages, room.id, username]);
@@ -42,8 +39,6 @@ export function ChatContainer({ username, room, handleShowChatSettings }: ChatCo
   useEffect(() => {
     socket.on('updateRoom', getUserRooms);
   }, [getUserRooms]);
-
-  console.log(currentRoomId);
 
   useEffect(() => {
     const handleMessages = (newMessage: MessageData) => (
@@ -53,7 +48,6 @@ export function ChatContainer({ username, room, handleShowChatSettings }: ChatCo
     );
 
     socket.on('comunitMessage', handleMessages);
-    socket.on('serverMessage', handleMessages);
 
     if (messageRef.current) messageRef.current.scrollTop = messageRef.current.scrollHeight;
   }, [serverMessages]);
@@ -61,7 +55,7 @@ export function ChatContainer({ username, room, handleShowChatSettings }: ChatCo
   const handleSendMassage = (message: string) => {
     if (message.trim().length) {
       (async () => {
-        await sendMessage(message, room);
+        sendMessage(message, room);
         socket.emit('roomClientMessage', {
           room: room.id,
           message,
