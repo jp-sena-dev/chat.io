@@ -1,13 +1,14 @@
 module.exports = (io) => io.on('connection', (socket) => {
   socket.on('joinRoom', ({username, userId, room}) => {
+    socket.removeAllListeners('roomClientMessage');
     socket.join(room);
-
-    socket.emit('userEntered', `${username}`);
+     
 
     socket.on('updateRoom', (room) => {
       io.to(room).emit('updateRoom');
     })
-  
+    
+
     socket.on('roomClientMessage', ({message, room}) => {
       io.to(room).emit('comunitMessage', {
         id: userId,
@@ -16,5 +17,9 @@ module.exports = (io) => io.on('connection', (socket) => {
         date: new Date().toISOString(),
       });
     });
+  });
+
+  socket.on('leaveRoom', (roomId) => {
+    socket.leave(roomId);
   });
 });
