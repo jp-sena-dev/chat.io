@@ -18,7 +18,11 @@ interface ChatContainerProps {
 }
 
 export function ChatContainer({ username, room, handleShowChatSettings }: ChatContainerProps) {
-  const { sendMessage, getMessages, getUserRooms } = useRooms();
+  const {
+    sendMessage,
+    getMessages,
+    updateRooms,
+  } = useRooms();
   const messageRef = useRef(null);
   const [clientMessage, setClientMesssage] = useState('');
   const [serverMessages, setServerMassages] = useState<MessageData[]>();
@@ -37,8 +41,13 @@ export function ChatContainer({ username, room, handleShowChatSettings }: ChatCo
   }, [currentRoomId, getMessages, room.id, username]);
 
   useEffect(() => {
-    socket.on('updateRoom', getUserRooms);
-  }, [getUserRooms]);
+    const handleUpdateRoomSocket = (updatedRoom: RoomCollection) => {
+      if (updatedRoom.users.find(({ userId }) => userId === auth.currentUser?.uid)) {
+        updateRooms(updatedRoom);
+      }
+    };
+    socket.on('updateRoom', handleUpdateRoomSocket);
+  }, [updateRooms]);
 
   useEffect(() => {
     const handleMessages = (newMessage: MessageData) => (
@@ -92,7 +101,9 @@ export function ChatContainer({ username, room, handleShowChatSettings }: ChatCo
                 variant="h5"
                 sx={{
                   fontWeight: 'bold',
+                  cursor: 'pointer',
                 }}
+                onClick={handleShowChatSettings}
               >
                 {room.name}
               </Typography>

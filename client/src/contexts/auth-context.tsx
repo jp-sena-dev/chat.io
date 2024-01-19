@@ -11,7 +11,13 @@ import {
   signOut,
 } from 'firebase/auth';
 import {
-  collection, doc, getDoc, getDocs, query, setDoc, where,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  where,
 } from 'firebase/firestore';
 import {
   getDownloadURL,
@@ -65,19 +71,23 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
       ...userData,
       imageURL,
     });
-    const roomsCollection = await collection(db, 'rooms');
-    const RoomsQuery = query(roomsCollection, where('id', 'in', currentUser?.rooms.map((room) => room.id)));
-    const RoomsDocs = await getDocs(RoomsQuery);
-    RoomsDocs.docs.forEach((currentUserDoc) => {
-      const roomData = currentUserDoc.data();
-      const roomdDoc = doc(db, 'rooms', currentUserDoc.id);
-      setDoc(roomdDoc, {
-        ...roomData,
-        users: roomData.users.map((r: any) => (
-          r.id === currentUser?.uid ? { ...r, imageURL } : r
-        )),
+    if (currentUser?.rooms) {
+      const roomsCollection = collection(db, 'rooms');
+      const RoomsQuery = query(roomsCollection, where('id', 'in', currentUser?.rooms.map((room) => room.id)));
+      const RoomsDocs = await getDocs(RoomsQuery);
+      RoomsDocs.docs.forEach((currentUserDoc) => {
+        const roomData = currentUserDoc.data();
+        const roomdDoc = doc(db, 'rooms', currentUserDoc.id);
+        setDoc(roomdDoc, {
+          ...roomData,
+          users: roomData.users.map((userRoomInformation: any) => (
+            userRoomInformation.userId === currentUser?.uid
+              ? { ...userRoomInformation, imageURL }
+              : userRoomInformation
+          )),
+        });
       });
-    });
+    }
     setCurrentUser({ ...currentUser, imageURL } as UserType);
   };
 
@@ -93,9 +103,30 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
   };
 
   const updateUsername = async (username: string) => {
-    const userDoc = await doc(db, 'users', `${(currentUser as UserType).uid}`);
+    const userDoc = doc(db, 'users', `${(currentUser as UserType).uid}`);
     const userData = (await getDoc(userDoc)).data() as UserType;
-    setCurrentUser({ ...userData, username });
+    setDoc(userDoc, {
+      ...userData,
+      username,
+    });
+    if (currentUser?.rooms) {
+      const roomsCollection = collection(db, 'rooms');
+      const RoomsQuery = query(roomsCollection, where('id', 'in', currentUser?.rooms.map((room) => room.id)));
+      const RoomsDocs = await getDocs(RoomsQuery);
+      RoomsDocs.docs.forEach((currentUserDoc) => {
+        const roomData = currentUserDoc.data();
+        const roomdDoc = doc(db, 'rooms', currentUserDoc.id);
+        setDoc(roomdDoc, {
+          ...roomData,
+          users: roomData.users.map((userRoomInformation: any) => (
+            userRoomInformation.userId === currentUser?.uid
+              ? { ...userRoomInformation, username }
+              : userRoomInformation
+          )),
+        });
+      });
+    }
+    setCurrentUser({ ...currentUser, username } as UserType);
   };
 
   useEffect(() => {

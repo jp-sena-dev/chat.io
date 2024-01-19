@@ -40,7 +40,9 @@ export default function Home() {
   }, [currentRooms, prevCurrentRooms]);
 
   useEffect(() => {
-    if (navScreen !== 'UpdateRoom') setBodyScreen('');
+    if (navScreen !== 'UpdateRoom' && navScreen !== 'userSettings') {
+      setBodyScreen('');
+    }
   }, [navScreen]);
 
   return (

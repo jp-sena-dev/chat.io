@@ -1,5 +1,6 @@
-import { Box, Typography } from '@mui/material';
+import { Avatar, Box, Typography } from '@mui/material';
 import { RoomCollection } from '../../../../contexts/rooms';
+import { useAuth } from '../../../../contexts/auth-context';
 
 export type MessageData = {
   username: string;
@@ -21,6 +22,9 @@ export function MessageContainer({
   isGrouped,
   room,
 }: MessageProps) {
+  const { currentUser } = useAuth();
+  const currentUserMessage = room.users.find((user) => user.userId === data.id);
+
   return (
     <Box
       sx={{
@@ -32,13 +36,15 @@ export function MessageContainer({
         px: '32px',
       }}
     >
-      <Box
-        component="img"
-        src={(room.users && room.users.find((user) => user.userId === data.id) as any)?.imageURL}
+      <Avatar
+        src={
+          data.id === currentUser.uid
+            ? currentUser.imageURL
+            : currentUserMessage?.imageURL
+        }
         sx={{
           width: '32px',
           height: '32px',
-          bgcolor: 'black',
           borderRadius: '30%',
           position: 'absolute',
           right: data.id === userId ? '-2px' : '',
@@ -80,7 +86,7 @@ export function MessageContainer({
                 fontSize: '14px',
               }}
             >
-              {data.username}
+              {data.id === currentUser.uid ? currentUser.username : currentUserMessage?.username }
             </Typography>
             <Typography
               sx={{

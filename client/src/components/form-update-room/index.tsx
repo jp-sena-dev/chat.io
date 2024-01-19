@@ -2,23 +2,17 @@ import { useEffect, useState } from 'react';
 import {
   Avatar,
   Box,
-  FormControl,
-  FormHelperText,
   IconButton,
-  InputBase,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CloseIcon from '@mui/icons-material/Close';
-import PublishIcon from '@mui/icons-material/Publish';
-import CircularProgress from '@mui/material/CircularProgress';
 import SendIcon from '@mui/icons-material/Send';
 import { styled } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
 import { RoomCollection, useRooms } from '../../contexts/rooms';
-import { socket } from '../chat-container';
 
 interface FormUpdateRoomProps {
   room: RoomCollection;
@@ -51,7 +45,8 @@ export function FormUpdateRoom({
 
   useEffect(() => {
     setPrevImg(null);
-  }, [room.id]);
+    setNameRoom(!room.name ? '' : room.name);
+  }, [room.id, room.name]);
 
   const handleChangeImg = async (imgFile: any) => {
     setFile(imgFile);
@@ -80,6 +75,8 @@ export function FormUpdateRoom({
 
   return (
     <Box
+      component="form"
+      onSubmit={(e) => e.preventDefault()}
       sx={{
         transition: '0.5s',
         height: '100%',
@@ -102,21 +99,18 @@ export function FormUpdateRoom({
       >
         <CloseIcon sx={{ fontSize: '2rem' }} />
       </IconButton>
-      <IconButton
-        sx={{
-          borderRadius: '50%',
-          width: '150px',
-          height: '150px',
-          margin: '0 auto',
-          bgcolor: '#107E78',
-          backgroundImage: `url(${prevImg || room.imageURL})`,
-          backgroundPosition: 'center',
-          backgroundSize: 'cover',
-        }}
-        component="label"
-      >
+      <Box component="label">
+        <Avatar
+          src={prevImg || room.imageURL}
+          sx={{
+            width: '150px',
+            height: '150px',
+            margin: '12px auto 0',
+            cursor: 'pointer',
+          }}
+        />
         <VisuallyHiddenInput type="file" onChange={({ target }) => handleChangeImg((target.files as any)[0])} />
-      </IconButton>
+      </Box>
       <TextField
         fullWidth
         margin="normal"
@@ -144,7 +138,7 @@ export function FormUpdateRoom({
         flexDirection: 'column',
       }}
       >
-        <Typography sx={{ mb: '4px' }}>
+        <Typography sx={{ mb: '4px', fontWeight: 'bold' }}>
           Members:
           {' '}
           {room.users && room.users.length}

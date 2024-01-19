@@ -1,7 +1,6 @@
 import {
-  Avatar, Box, Button, IconButton, TextField, styled,
+  Avatar, Box, TextField, styled,
 } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SaveIcon from '@mui/icons-material/Save';
 import { useState } from 'react';
 import { LoadingButton } from '@mui/lab';
@@ -57,20 +56,19 @@ export default function FormUpdateUser() {
           gap: '18px',
         }}
       >
-        <IconButton
-          sx={{
-            borderRadius: '50%',
-            width: '150px',
-            height: '150px',
-            margin: '0 auto',
-            backgroundImage: `url(${prevImg || currentUser.imageURL})`,
-            backgroundPosition: 'center',
-            backgroundSize: 'cover',
-          }}
-          component="label"
-        >
+        <Box component="label">
+          <Avatar
+            src={prevImg || currentUser.imageURL}
+            sx={{
+              borderRadius: '50%',
+              width: '150px',
+              height: '150px',
+              margin: '0 auto',
+              cursor: 'pointer',
+            }}
+          />
           <VisuallyHiddenInput type="file" onChange={({ target }) => handleChangeImage((target.files as any)[0])} />
-        </IconButton>
+        </Box>
         <div>
           <TextField
             fullWidth

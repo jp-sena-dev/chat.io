@@ -9,7 +9,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import SendIcon from '@mui/icons-material/Send';
 import { useState } from 'react';
 import { useRooms } from '../../contexts/rooms';
-import img from '../../../public/img.png';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -87,7 +86,7 @@ export function FormCreateRoom() {
             width: '150px',
             height: '150px',
             margin: '0 auto',
-            backgroundImage: `url(${prevImg || img})`,
+            backgroundImage: `url(${prevImg})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
           }}

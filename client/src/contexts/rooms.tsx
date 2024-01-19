@@ -17,7 +17,6 @@ import {
 import { auth, db } from '../firebase-config';
 import { useAuth } from './auth-context';
 import { socket } from '../App';
-// eslint-disable-next-line import/no-cycle
 
 interface RoomProviderProps {
   children: JSX.Element;
@@ -60,6 +59,7 @@ interface RoomProviderType {
   uploadImage: (file: any, roomId: string) => Promise<any>;
   exitRoom: (id: string) => Promise<void>;
   updateRoomName: (name: string, id: string) => Promise<void>;
+  updateRooms: (updateRoom: RoomCollection) => void;
   currentRooms: RoomCollection[];
 }
 
@@ -103,15 +103,20 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
       imageURL,
       ...roomData,
     });
-    setCurrentRooms(currentRooms.map((room) => (
-      room.id === roomId ? { ...room, imageURL } : room
-    )));
-    socket.emit('updateRoom', roomId);
+    setCurrentRooms(currentRooms.map((room) => {
+      if (room.id === roomId) {
+        socket.emit('updateRoom', { ...room, imageURL });
+        return { ...room, imageURL };
+      }
+      return room;
+    }));
   };
 
-  // const changeRoomImageUrl = () => {
-
-  // };
+  const updateRooms = (roomUpdated: RoomCollection) => {
+    setCurrentRooms(currentRooms.map(
+      (prevRoom) => (prevRoom.id === roomUpdated.id ? roomUpdated : prevRoom)
+    ));
+  };
 
   const updateRoomName = async (name: string, id: string) => {
     const roomsCollection = collection(db, 'rooms');
@@ -123,8 +128,13 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
       name,
       ...roomData,
     });
-    setCurrentRooms(currentRooms.map((room) => (room.id === id ? { ...room, name } : room)));
-    socket.emit('updateRoom', id);
+    setCurrentRooms(currentRooms.map((room) => {
+      if (room.id === id) {
+        socket.emit('updateRoom', { ...room, name });
+        return { ...room, name };
+      }
+      return room;
+    }));
   };
 
   const exitRoom = async (id: string) => {
@@ -147,7 +157,10 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
     });
 
     setCurrentRooms(currentRooms.filter(({ id: roomId }) => roomId !== id));
-    socket.emit('updateRoom', id);
+    socket.emit('updateRoom', {
+      ...userData,
+      rooms: rooms.filter(({ id: roomId }) => roomId !== id),
+    });
   };
 
   const joinRoom = async (id: string): Promise<RoomCollection> => {
@@ -187,7 +200,14 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
         }, ...roomUsers],
       });
       setCurrentRooms(currentRooms?.length ? [...currentRooms, currentRoom] : [currentRoom]);
-      socket.emit('updateRoom', id);
+      socket.emit('updateRoom', {
+        ...roomData,
+        users: [{
+          username: currentUser.username,
+          userId: currentUser.uid,
+          imageURL: currentUser.imageURL,
+        }, ...roomUsers],
+      });
       return currentRoom;
     }
 
@@ -209,7 +229,14 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
       }, ...rooms],
     });
     setCurrentRooms(currentRooms?.length ? [...currentRooms, currentRoom] : [currentRoom]);
-    socket.emit('updateRoom', id);
+    socket.emit('updateRoom', {
+      ...roomData,
+      users: [{
+        username: currentUser.username,
+        userId: currentUser.uid,
+        imageURL: currentUser.imageURL,
+      }, ...roomUsers],
+    });
     return currentRoom;
   };
 
@@ -336,6 +363,7 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
     uploadImage,
     exitRoom,
     updateRoomName,
+    updateRooms,
     currentRooms,
   }), [currentRooms]);
 
