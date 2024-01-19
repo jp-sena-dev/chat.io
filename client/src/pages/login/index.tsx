@@ -88,14 +88,15 @@ export default function Login() {
         sx={{ mt: 4 }}
       >
         <Slide direction="right" hidden={!IsOnSignupScreen} in={IsOnSignupScreen}>
-          <Box>
+          <Box
+            component="form"
+            onSubmit={(e) => { e.preventDefault(); handleLogin(); }}
+            noValidate
+          >
             <Typography component="h1" variant="h4">
               Login
             </Typography>
             <Box
-              component="form"
-              onSubmit={handleSignup}
-              noValidate
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -140,18 +141,20 @@ export default function Login() {
               fullWidth
               variant="contained"
               sx={{ mb: 2, mt: 2 }}
-              onClick={handleLogin}
             >
               Login
             </Button>
           </Box>
         </Slide>
         <Slide direction="right" hidden={IsOnSignupScreen} in={!IsOnSignupScreen}>
-          <Box>
+          <Box
+            component="form"
+            onSubmit={(e) => { e.preventDefault(); handleSignup(); }}
+          >
             <Typography component="h1" variant="h4">
               Sign up
             </Typography>
-            <Box component="form" onSubmit={handleSignup}>
+            <Box>
               <TextField
                 error={email.length ? !emailIsValid : false}
                 margin="normal"
@@ -209,7 +212,6 @@ export default function Login() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={handleSignup}
             >
               Sign up
             </Button>

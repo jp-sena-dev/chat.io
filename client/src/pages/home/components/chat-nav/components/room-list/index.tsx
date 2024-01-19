@@ -61,7 +61,7 @@ export function RoomList({
             sx={{
               width: '48px',
               height: '48px',
-              bgcolor: '#107E78',
+              bgcolor: '#b3b3b3',
               borderRadius: '30%',
             }}
           />
@@ -81,10 +81,10 @@ export function RoomList({
                 component="p"
                 sx={{
                   fontWeight: 'bold',
-                  fontSize: '1.2rem',
+                  fontSize: '1rem',
                 }}
               >
-                {room.name}
+                {room.name.length > 10 ? `${room.name.slice(0, 10)}...` : room.name}
               </Typography>
               {/* <Typography
                 component="p"

@@ -14,21 +14,30 @@ export function NavUserSettings({ setBodyScreen, bodyScreen }: NavUserSettingsPr
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px',
+        height: '95%',
+        justifyContent: 'space-between',
       }}
     >
-      <NavItem
-        selected={bodyScreen === 'userProfileSettings'}
-        setBodyScreen={() => setBodyScreen('userProfileSettings')}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+        }}
       >
-        <Typography sx={{ fontSize: '2rem', fontWeight: 'bold' }}>User</Typography>
-      </NavItem>
-      <NavItem
-        selected={bodyScreen === 'about'}
-        setBodyScreen={() => setBodyScreen('about')}
-      >
-        <Typography sx={{ fontSize: '2rem', fontWeight: 'bold' }}>About</Typography>
-      </NavItem>
+        <NavItem
+          selected={bodyScreen === 'userProfileSettings'}
+          setBodyScreen={() => setBodyScreen('userProfileSettings')}
+        >
+          <Typography sx={{ fontSize: '2rem', fontWeight: 'bold' }}>User</Typography>
+        </NavItem>
+        <NavItem
+          selected={bodyScreen === 'about'}
+          setBodyScreen={() => setBodyScreen('about')}
+        >
+          <Typography sx={{ fontSize: '2rem', fontWeight: 'bold' }}>About</Typography>
+        </NavItem>
+      </Box>
       <NavItem
         selected={false}
         setBodyScreen={() => logout()}
