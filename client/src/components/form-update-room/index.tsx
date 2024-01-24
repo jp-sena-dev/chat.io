@@ -13,6 +13,8 @@ import SendIcon from '@mui/icons-material/Send';
 import { styled } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
 import { RoomCollection, useRooms } from '../../contexts/rooms';
+import { useAuth } from '../../contexts/auth-context';
+import { useDialog } from '../../contexts/dialog';
 
 interface FormUpdateRoomProps {
   room: RoomCollection;
@@ -38,6 +40,8 @@ export function FormUpdateRoom({
   handleChangeName,
 }: FormUpdateRoomProps) {
   const { uploadImage, updateRoomName, exitRoom } = useRooms();
+  const { currentUser } = useAuth();
+  const { dialogNeedsLogin } = useDialog();
   const [nameRoom, setNameRoom] = useState(!room.name ? '' : room.name);
   const [loading, setLoading] = useState(false);
   const [prevImg, setPrevImg] = useState(null);
@@ -121,7 +125,7 @@ export function FormUpdateRoom({
       />
       <LoadingButton
         size="medium"
-        onClick={HandleChangeSubmit}
+        onClick={() => (currentUser.isAnonymous ? dialogNeedsLogin() : HandleChangeSubmit())}
         loading={loading}
         loadingPosition="end"
         type="submit"
@@ -177,7 +181,9 @@ export function FormUpdateRoom({
           color: 'red',
         }}
       >
-        <LogoutIcon sx={{ fontSize: '2rem' }} />
+        {!currentUser.isAnonymous && (
+          <LogoutIcon sx={{ fontSize: '2rem' }} />
+        )}
       </IconButton>
     </Box>
   );

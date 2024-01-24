@@ -86,7 +86,7 @@ export function MessageContainer({
                 fontSize: '14px',
               }}
             >
-              {data.id === currentUser.uid ? currentUser.username : currentUserMessage?.username }
+              {data.id === currentUser.uid ? currentUser.username : `${currentUserMessage?.username || 'guest'}` }
             </Typography>
             <Typography
               sx={{

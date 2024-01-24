@@ -1,6 +1,6 @@
 import {
+  Avatar,
   Box,
-  IconButton,
   TextField,
   Typography,
   styled,
@@ -80,20 +80,18 @@ export function FormCreateRoom() {
           gap: '18px',
         }}
       >
-        <IconButton
-          sx={{
-            borderRadius: '50%',
-            width: '150px',
-            height: '150px',
-            margin: '0 auto',
-            backgroundImage: `url(${prevImg})`,
-            backgroundPosition: 'center',
-            backgroundSize: 'cover',
-          }}
-          component="label"
-        >
+        <Box component="label">
+          <Avatar
+            src={prevImg || ''}
+            sx={{
+              width: '150px',
+              height: '150px',
+              margin: '12px auto 0',
+              cursor: 'pointer',
+            }}
+          />
           <VisuallyHiddenInput type="file" onChange={({ target }) => handleChangeFile((target.files as any)[0])} />
-        </IconButton>
+        </Box>
         <div>
           <TextField
             required
