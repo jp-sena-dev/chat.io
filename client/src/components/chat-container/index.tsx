@@ -10,6 +10,7 @@ import { MessageInput } from './components/message-input';
 import { RoomCollection, useRooms } from '../../contexts/rooms';
 import { auth } from '../../firebase-config';
 import { socket } from '../../App';
+import { useAuth } from '../../contexts/auth-context';
 
 interface ChatContainerProps {
   username: string;
@@ -17,7 +18,8 @@ interface ChatContainerProps {
   handleShowChatSettings: () => void;
 }
 
-export function ChatContainer({ username, room, handleShowChatSettings }: ChatContainerProps) {
+export function ChatContainer({ username = 'guest', room, handleShowChatSettings }: ChatContainerProps) {
+  const { currentUser } = useAuth();
   const {
     sendMessage,
     getMessages,
@@ -64,7 +66,7 @@ export function ChatContainer({ username, room, handleShowChatSettings }: ChatCo
   const handleSendMassage = (message: string) => {
     if (message.trim().length) {
       (async () => {
-        sendMessage(message, room);
+        if (!currentUser.isAnonymous) sendMessage(message, room);
         socket.emit('roomClientMessage', {
           room: room.id,
           message,
