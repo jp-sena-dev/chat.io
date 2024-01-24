@@ -4,6 +4,7 @@ import Home from '../pages/home';
 import PrivateRoute from './private-route';
 import PublicRoute from './public-route';
 import RoomsApiProvider from '../contexts/rooms';
+import DialogProvider from '../contexts/dialog';
 
 export default function AppRoutes() {
   return (
@@ -16,7 +17,9 @@ export default function AppRoutes() {
           index
           element={(
             <RoomsApiProvider>
-              <Home />
+              <DialogProvider>
+                <Home />
+              </DialogProvider>
             </RoomsApiProvider>
           )}
         />

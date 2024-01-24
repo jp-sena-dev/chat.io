@@ -24,7 +24,7 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const { email, setEmail, isValid: emailIsValid } = useEmail();
   const { password, setPassword } = usePassword();
-  const { login, signup } = useAuth();
+  const { login, signup, signInGuest } = useAuth();
   const [IsOnSignupScreen, setIsOnSignupScreen] = useState(true);
   const [requestError, serRequestError] = useState('');
 
@@ -144,6 +144,15 @@ export default function Login() {
             >
               Login
             </Button>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mb: 2 }}
+              onClick={signInGuest}
+            >
+              Log in as a guest
+            </Button>
           </Box>
         </Slide>
         <Slide direction="right" hidden={IsOnSignupScreen} in={!IsOnSignupScreen}>
@@ -214,6 +223,15 @@ export default function Login() {
               sx={{ mt: 3, mb: 2 }}
             >
               Sign up
+            </Button>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mb: 2 }}
+              onClick={signInGuest}
+            >
+              Log in as a guest
             </Button>
           </Box>
         </Slide>

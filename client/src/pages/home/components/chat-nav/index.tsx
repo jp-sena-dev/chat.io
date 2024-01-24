@@ -5,6 +5,8 @@ import { RoomCollection } from '../../../../contexts/rooms';
 import { NavRoomOptions } from './components/nav-room-options';
 import { NavUserSettings } from './components/nav-user-settings';
 import { RoomList } from './components/room-list';
+import { useAuth } from '../../../../contexts/auth-context';
+import { useDialog } from '../../../../contexts/dialog';
 
 interface ChatNavProps {
   userRooms: RoomCollection[];
@@ -25,6 +27,8 @@ export function ChatNav({
   setNavScreen,
   setBodyScreen,
 }: ChatNavProps) {
+  const { currentUser } = useAuth();
+  const { dialogNeedsLogin } = useDialog();
   return (
     <Box
       sx={{
@@ -38,7 +42,7 @@ export function ChatNav({
     >
       {!!userRooms && (
         <RoomList
-          handleShowRoomSettings={() => setNavScreen('RoomOptions')}
+          handleShowRoomSettings={() => (currentUser.isAnonymous ? dialogNeedsLogin() : setNavScreen('RoomOptions'))}
           rooms={userRooms}
           selectedRoom={currentRoom}
           setRoom={setCurrentRoom}

@@ -26,13 +26,21 @@ export type RoomCollection = {
   id: string;
   name: string;
   imageURL?: string;
-  users: UserCollection[] | [];
+  users: {
+    imageURL: string;
+    userId: string;
+    username: string;
+  }[];
 };
 
 export interface UserCollection {
   username: string;
   userId: string,
-  rooms: RoomCollection[] | [];
+  rooms: {
+    id: string;
+    name: string;
+    imageURL?: string;
+  }[] | [];
   imageURL?: string;
 }
 
@@ -75,7 +83,7 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
     const userDoc = doc(db, 'users', `${auth.currentUser?.uid}`);
     const userDocData = await getDoc(userDoc);
     const roomsCollection = collection(db, 'rooms');
-    const { rooms } = userDocData.data();
+    const { rooms } = userDocData.data() as UserCollection;
     if (!rooms.length) return [];
     const roomQuery = query(roomsCollection, where('id', 'in', rooms.map(({ id }: any) => id)));
     const roomQueryDoc = await getDocs(roomQuery);
@@ -84,10 +92,41 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
   };
 
   useEffect(() => {
-    (async () => {
-      await getUserRooms().then(() => setLoading(false));
-    })();
-  }, []);
+    if (!currentUser.isAnonymous) {
+      (async () => {
+        await getUserRooms().then(() => setLoading(false));
+      })();
+    } else {
+      setCurrentRooms([
+        {
+          id: 'movie',
+          name: 'Movie',
+          users: [{ username: 'guest' }, { username: 'guest' }, { username: 'guest' }] as UserCollection[],
+        },
+        {
+          id: 'sport',
+          name: 'Sport',
+          users: [{ username: 'guest' }, { username: 'guest' }, { username: 'guest' }] as UserCollection[],
+        },
+        {
+          id: 'technology',
+          name: 'Technology',
+          users: [{ username: 'guest' }, { username: 'guest' }, { username: 'guest' }] as UserCollection[],
+        },
+        {
+          id: 'music',
+          name: 'Music',
+          users: [{ username: 'guest' }, { username: 'guest' }, { username: 'guest' }] as UserCollection[],
+        },
+        {
+          id: 'memes',
+          name: 'Memes',
+          users: [{ username: 'guest' }, { username: 'guest' }, { username: 'guest' }] as UserCollection[],
+        },
+      ]);
+      setLoading(false);
+    }
+  }, [currentUser.isAnonymous]);
 
   const uploadImage = async (file: any, roomId: string) => {
     const storage = getStorage();
@@ -114,7 +153,7 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
 
   const updateRooms = (roomUpdated: RoomCollection) => {
     setCurrentRooms(currentRooms.map(
-      (prevRoom) => (prevRoom.id === roomUpdated.id ? roomUpdated : prevRoom)
+      (prevRoom) => (prevRoom.id === roomUpdated.id ? roomUpdated : prevRoom),
     ));
   };
 
@@ -365,6 +404,7 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
     updateRoomName,
     updateRooms,
     currentRooms,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [currentRooms]);
 
   return (

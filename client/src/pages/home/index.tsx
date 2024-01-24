@@ -21,12 +21,12 @@ export default function Home() {
   const [bodyScreen, setBodyScreen] = useState('');
 
   useEffect(() => {
-    if (room && currentRooms) {
+    if (room && currentRooms && !currentUser.isAnonymous) {
       setRoom((prevRoom) => (
         currentRooms.find((r) => r.id === (prevRoom as RoomCollection).id)
       ) as RoomCollection);
     }
-  }, [currentRooms, room]);
+  }, [currentRooms, room, currentUser]);
 
   useEffect(() => {
     if (prevCurrentRooms.length > currentRooms.length) {
@@ -44,6 +44,8 @@ export default function Home() {
       setBodyScreen('');
     }
   }, [navScreen]);
+
+  if (!currentUser.username) return <div>aaa</div>;
 
   return (
     <Container component="main">

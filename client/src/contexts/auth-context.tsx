@@ -7,8 +7,10 @@ import React, {
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInAnonymously,
   signInWithEmailAndPassword,
   signOut,
+  User,
 } from 'firebase/auth';
 import {
   collection,
@@ -36,7 +38,7 @@ interface UserRoomType {
   name: string;
 }
 
-interface UserType {
+interface UserType extends User {
   imageURL: string;
   uid: string;
   username: string;
@@ -46,6 +48,7 @@ interface UserType {
 
 interface AuthProviderType {
   signup: (email: string, password: string, name: string) => void;
+  signInGuest: () => void;
   login: (email: string, password: string) => void;
   logout: () => void;
   uploadImage: (param: any, userId: string) => Promise<void>;
@@ -91,15 +94,24 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
     setCurrentUser({ ...currentUser, imageURL } as UserType);
   };
 
-  const updateCurrentUser = async (user: any) => {
-    const userDoc = await doc(db, 'users', `${user.uid}`);
-    const { username, imageURL, rooms } = (await getDoc(userDoc)).data() as UserType;
-    setCurrentUser({
-      ...user,
-      username,
-      imageURL,
-      rooms,
-    });
+  const updateCurrentUser = async (user: User) => {
+    if (!user?.isAnonymous) {
+      const userDoc = doc(db, 'users', `${user.uid}`);
+      const { username, imageURL, rooms } = (await getDoc(userDoc)).data() as UserType;
+      setCurrentUser({
+        ...user,
+        username,
+        imageURL,
+        rooms,
+      } as UserType);
+    } else {
+      setCurrentUser({
+        ...user,
+        imageURL: '',
+        username: 'guest',
+        rooms: [],
+      } as UserType);
+    }
   };
 
   const updateUsername = async (username: string) => {
@@ -131,10 +143,14 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user: any) => {
-      if (user) await updateCurrentUser(user);
+      if (user) await updateCurrentUser(user as User);
       setLoading(false);
     });
   }, []);
+
+  const signInGuest = async () => {
+    await signInAnonymously(auth);
+  };
 
   const signup = async (email: string, password: string, username: string) => {
     try {
@@ -153,7 +169,7 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string) => {
     try {
-      const user = await signInWithEmailAndPassword(auth, email, password);
+      const { user } = await signInWithEmailAndPassword(auth, email, password);
       updateCurrentUser(user);
     } catch ({ code }: any) {
       throw new Error(code);
@@ -171,6 +187,7 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
     uploadImage,
     updateUsername,
     logout,
+    signInGuest,
     currentUser,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [currentUser]);
