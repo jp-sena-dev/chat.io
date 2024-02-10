@@ -45,11 +45,11 @@ export function ChatContainer({ username = 'guest', room, handleShowChatSettings
   useEffect(() => {
     const handleUpdateRoomSocket = (updatedRoom: RoomCollection) => {
       if (updatedRoom.users.find(({ userId }) => userId === auth.currentUser?.uid)) {
-        updateRooms(updatedRoom);
+        updateRooms(room.id, updatedRoom);
       }
     };
     socket.on('updateRoom', handleUpdateRoomSocket);
-  }, [updateRooms]);
+  }, [room.id, updateRooms]);
 
   useEffect(() => {
     const handleMessages = (newMessage: MessageData) => (
