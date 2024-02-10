@@ -21,38 +21,37 @@ import {
   setDoc,
   where,
 } from 'firebase/firestore';
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytes,
-} from 'firebase/storage';
 import { auth, db } from '../firebase-config';
+import { RoomCollection, RoomInUserType } from './rooms';
+import { uploadImage } from '../services/upload-image';
 
 interface AuthProviderProps {
   children: JSX.Element;
 }
 
-interface UserRoomType {
-  id: string;
-  name: string;
-}
+// export interface UserInRoomType {
+//   id: string;
+//   name: string;
+//   imageURL?: string;
+// }
 
-interface UserType extends User {
+interface UserInDatabase {
   imageURL: string;
   uid: string;
   username: string;
-  email: string;
-  rooms?: UserRoomType[];
+  rooms?: RoomCollection[];
 }
 
+type UserType = User & UserInDatabase;
+
 interface AuthProviderType {
-  signup: (email: string, password: string, name: string) => void;
-  signInGuest: () => void;
-  login: (email: string, password: string) => void;
-  logout: () => void;
-  uploadImage: (param: any, userId: string) => Promise<void>;
-  updateUsername: (param: string) => Promise<void>
+  signup: (email: string, password: string, name: string) => Promise<void>;
+  signInGuest: () => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  updateUserImage: (param: any, uid: string) => Promise<void>;
+  updateUsername: (param: string) => Promise<void>;
+  updateUserInDatabase: (updateInfo: Partial<UserInDatabase>) => Promise<void>;
   currentUser: UserType;
 }
 
@@ -63,41 +62,44 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<UserType | null>(null);
 
-  const uploadImage = async (file: any, userId: string) => {
-    const storage = getStorage();
-    const storageRef = ref(storage, `users/${userId}`);
-    await uploadBytes(storageRef, file);
-    const imageURL = await getDownloadURL(storageRef);
-    const userDoc = await doc(db, 'users', `${userId}`);
-    const { ...userData } = (await getDoc(userDoc)).data();
+  const updateUserInRooms = async (rooms: RoomCollection[], user: Partial<RoomInUserType>) => {
+    const roomsCollection = collection(db, 'rooms');
+    const roomsDocs = await getDocs(query(roomsCollection, where('id', 'in', rooms.map((room) => room.id))));
+    roomsDocs.docs.forEach((roomDoc) => {
+      const roomData = roomDoc.data();
+      setDoc(doc(db, 'rooms', roomDoc.id), {
+        ...roomData,
+        users: roomData.users.map((roomUser: RoomInUserType) => (
+          roomUser.userId === currentUser?.uid
+            ? { ...roomUser, ...user }
+            : roomUser
+        )),
+      });
+    });
+    setCurrentUser({ ...currentUser, ...user } as UserType);
+  };
+
+  const updateUserInDatabase = async (updateInfo: Partial<UserInDatabase>): Promise<void> => {
+    const userDoc = doc(db, 'users', `${currentUser?.uid}`);
+    const userData = (await getDoc(userDoc)).data();
     await setDoc(userDoc, {
       ...userData,
-      imageURL,
+      ...updateInfo,
     });
-    if (currentUser?.rooms) {
-      const roomsCollection = collection(db, 'rooms');
-      const RoomsQuery = query(roomsCollection, where('id', 'in', currentUser?.rooms.map((room) => room.id)));
-      const RoomsDocs = await getDocs(RoomsQuery);
-      RoomsDocs.docs.forEach((currentUserDoc) => {
-        const roomData = currentUserDoc.data();
-        const roomdDoc = doc(db, 'rooms', currentUserDoc.id);
-        setDoc(roomdDoc, {
-          ...roomData,
-          users: roomData.users.map((userRoomInformation: any) => (
-            userRoomInformation.userId === currentUser?.uid
-              ? { ...userRoomInformation, imageURL }
-              : userRoomInformation
-          )),
-        });
-      });
-    }
+  };
+
+  const updateUserImage = async (file: any): Promise<void> => {
+    const imageURL = await uploadImage(file, `users/${currentUser?.uid}`);
+    await updateUserInDatabase({ imageURL });
+
+    if (currentUser?.rooms) await updateUserInRooms(currentUser.rooms, { imageURL });
+
     setCurrentUser({ ...currentUser, imageURL } as UserType);
   };
 
-  const updateCurrentUser = async (user: User) => {
-    if (!user?.isAnonymous) {
-      const userDoc = doc(db, 'users', `${user.uid}`);
-      const { username, imageURL, rooms } = (await getDoc(userDoc)).data() as UserType;
+  const updateCurrentUser = async (user: User): Promise<void> => {
+    if (!user.isAnonymous) {
+      const { username, imageURL, rooms } = (await getDoc(doc(db, 'users', user.uid))).data() as UserType;
       setCurrentUser({
         ...user,
         username,
@@ -114,60 +116,38 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const updateUsername = async (username: string) => {
-    const userDoc = doc(db, 'users', `${(currentUser as UserType).uid}`);
-    const userData = (await getDoc(userDoc)).data() as UserType;
-    setDoc(userDoc, {
-      ...userData,
-      username,
-    });
-    if (currentUser?.rooms) {
-      const roomsCollection = collection(db, 'rooms');
-      const RoomsQuery = query(roomsCollection, where('id', 'in', currentUser?.rooms.map((room) => room.id)));
-      const RoomsDocs = await getDocs(RoomsQuery);
-      RoomsDocs.docs.forEach((currentUserDoc) => {
-        const roomData = currentUserDoc.data();
-        const roomdDoc = doc(db, 'rooms', currentUserDoc.id);
-        setDoc(roomdDoc, {
-          ...roomData,
-          users: roomData.users.map((userRoomInformation: any) => (
-            userRoomInformation.userId === currentUser?.uid
-              ? { ...userRoomInformation, username }
-              : userRoomInformation
-          )),
-        });
-      });
-    }
-    setCurrentUser({ ...currentUser, username } as UserType);
+  const updateUsername = async (username: string): Promise<void> => {
+    setCurrentUser({ ...currentUser as UserType, username });
+    await updateUserInDatabase({ username });
+    if (currentUser?.rooms) await updateUserInRooms(currentUser.rooms, { username });
   };
 
   useEffect(() => {
-    onAuthStateChanged(auth, async (user: any) => {
-      if (user) await updateCurrentUser(user as User);
+    onAuthStateChanged(auth, async (user: User | null) => {
+      if (user) await updateCurrentUser(user);
       setLoading(false);
     });
   }, []);
 
-  const signInGuest = async () => {
+  const signInGuest = async (): Promise<void> => {
     await signInAnonymously(auth);
   };
 
-  const signup = async (email: string, password: string, username: string) => {
+  const signup = async (email: string, password: string, username: string): Promise<void> => {
     try {
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      const userDoc = doc(db, 'users', `${user.uid}`);
-      setDoc(userDoc, {
+      setDoc(doc(db, 'users', `${user.uid}`), {
         username,
         rooms: [],
         imageURL: '',
-        userId: user.uid,
+        uid: user.uid,
       });
     } catch ({ code }: any) {
       throw new Error(code);
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     try {
       const { user } = await signInWithEmailAndPassword(auth, email, password);
       updateCurrentUser(user);
@@ -176,7 +156,7 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     await signOut(auth);
     setCurrentUser(null);
   };
@@ -184,10 +164,11 @@ export default function UserApiProvider({ children }: AuthProviderProps) {
   const value = useMemo(() => ({
     signup,
     login,
-    uploadImage,
+    updateUserImage,
     updateUsername,
     logout,
     signInGuest,
+    updateUserInDatabase,
     currentUser,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [currentUser]);

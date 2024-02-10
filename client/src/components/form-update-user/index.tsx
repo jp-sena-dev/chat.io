@@ -20,7 +20,7 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 export default function FormUpdateUser() {
-  const { currentUser, uploadImage, updateUsername } = useAuth();
+  const { currentUser, updateUserImage, updateUsername } = useAuth();
   const { dialogNeedsLogin } = useDialog();
   const [username, setUsername] = useState(currentUser.username);
   const [loading, setLoading] = useState(false);
@@ -38,7 +38,7 @@ export default function FormUpdateUser() {
     if (!currentUser.isAnonymous) {
       setLoading(true);
       if (username !== currentUser.username) await updateUsername(username);
-      if (file) await uploadImage(file, currentUser.uid);
+      if (file) await uploadImage(file);
       setLoading(false);
     } else {
       dialogNeedsLogin();
