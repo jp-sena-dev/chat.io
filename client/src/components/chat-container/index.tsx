@@ -5,9 +5,9 @@ import {
   Typography,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { MessageContainer, MessageData } from './components/message';
+import { MessageContainer } from './components/message';
 import { MessageInput } from './components/message-input';
-import { RoomCollection, useRooms } from '../../contexts/rooms';
+import { MessageType, RoomCollection, useRooms } from '../../contexts/rooms';
 import { auth } from '../../firebase-config';
 import { socket } from '../../App';
 import { useAuth } from '../../contexts/auth-context';
@@ -23,11 +23,11 @@ export function ChatContainer({ username = 'guest', room, handleShowChatSettings
   const {
     sendMessage,
     getMessages,
-    updateRooms,
+    updateRoom,
   } = useRooms();
   const messageRef = useRef(null);
   const [clientMessage, setClientMesssage] = useState('');
-  const [serverMessages, setServerMassages] = useState<MessageData[]>();
+  const [serverMessages, setServerMassages] = useState<MessageType[]>();
   const [currentRoomId, setCurrentRoomId] = useState('');
   useEffect(() => {
     if (room.id !== currentRoomId) {
@@ -45,14 +45,14 @@ export function ChatContainer({ username = 'guest', room, handleShowChatSettings
   useEffect(() => {
     const handleUpdateRoomSocket = (updatedRoom: RoomCollection) => {
       if (updatedRoom.users.find(({ userId }) => userId === auth.currentUser?.uid)) {
-        updateRooms(room.id, updatedRoom);
+        updateRoom(room.id, updatedRoom);
       }
     };
     socket.on('updateRoom', handleUpdateRoomSocket);
-  }, [room.id, updateRooms]);
+  }, [room.id, updateRoom]);
 
   useEffect(() => {
-    const handleMessages = (newMessage: MessageData) => (
+    const handleMessages = (newMessage: MessageType) => (
       !serverMessages?.length
         ? setServerMassages([newMessage])
         : setServerMassages([...serverMessages, newMessage])
@@ -66,7 +66,7 @@ export function ChatContainer({ username = 'guest', room, handleShowChatSettings
   const handleSendMassage = (message: string) => {
     if (message.trim().length) {
       (async () => {
-        if (!currentUser.isAnonymous) sendMessage(message, room);
+        if (!currentUser.isAnonymous) await sendMessage(message, room);
         socket.emit('roomClientMessage', {
           room: room.id,
           message,
@@ -111,9 +111,9 @@ export function ChatContainer({ username = 'guest', room, handleShowChatSettings
               </Typography>
               <Typography
                 component="p"
+                color="primary"
                 sx={{
                   fontSize: '12px',
-                  color: '#107E78',
                 }}
               >
                 {`${room.users.length} members`}
@@ -124,7 +124,7 @@ export function ChatContainer({ username = 'guest', room, handleShowChatSettings
             </IconButton>
           </Box>
           <Box ref={messageRef} sx={{ overflowY: 'auto' }}>
-            {serverMessages && serverMessages.map((data: MessageData, index) => (
+            {serverMessages && serverMessages.map((data: MessageType, index) => (
               <MessageContainer
                 room={room}
                 data={data}

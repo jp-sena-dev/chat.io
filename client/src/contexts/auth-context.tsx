@@ -49,7 +49,7 @@ interface AuthProviderType {
   signInGuest: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateUserImage: (param: any, uid: string) => Promise<void>;
+  updateUserImage: (param: any) => Promise<void>;
   updateUsername: (param: string) => Promise<void>;
   updateUserInDatabase: (updateInfo: Partial<UserInDatabase>) => Promise<void>;
   currentUser: UserType;

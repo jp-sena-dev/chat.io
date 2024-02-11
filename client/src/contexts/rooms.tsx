@@ -40,30 +40,28 @@ export interface UserCollection {
   imageURL?: string;
 }
 
-type MessageType = {
-  date: string;
+export interface MessageType {
+  createdAt: string;
   id: string;
   message: string;
   username: string;
-};
+}
 
-export interface MessageCollection {
-  createdAt: string;
+interface MessagesCollection {
   roomId: string;
-  roomName: string;
   messages: MessageType[];
 }
 
 interface RoomProviderType {
   createRoom: (name: string, id: string, img: any) => Promise<RoomCollection>;
   joinRoom: (id: string) => Promise<RoomCollection>;
-  getUserRooms: () => Promise<RoomCollection[] | []>;
-  sendMessage: (message: string, room: RoomCollection) => void;
-  getMessages: (roomId: string) => Promise<MessageCollection[]>;
+  getUserRoom: () => Promise<RoomCollection[] | []>;
+  sendMessage: (message: string, room: RoomCollection) => Promise<void>;
+  getMessages: (roomId: string) => Promise<MessageType[]>;
   updateRoomImage: (file: any, roomId: string) => Promise<any>;
   exitRoom: (id: string) => Promise<void>;
   updateRoomName: (name: string, id: string) => Promise<void>;
-  updateRooms: (roomId: string, updateInfos: Partial<RoomCollection>) => void;
+  updateRoom: (roomId: string, updateInfos: Partial<RoomCollection>) => void;
   currentRooms: RoomCollection[];
 }
 
@@ -75,7 +73,7 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
   const [currentRooms, setCurrentRooms] = useState<RoomCollection[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const getUserRooms = async (): Promise<RoomCollection[] | []> => {
+  const getUserRoom = async (): Promise<RoomCollection[] | []> => {
     const { rooms } = (await getDoc(doc(db, 'users', `${auth.currentUser?.uid}`))).data() as UserCollection;
     if (!rooms.length) return [];
     const roomsDoc = await getDocs(query(collection(db, 'rooms'), where('id', 'in', rooms.map(({ id }: any) => id))));
@@ -87,7 +85,7 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
   useEffect(() => {
     if (!currentUser.isAnonymous) {
       (async () => {
-        await getUserRooms().then(() => setLoading(false));
+        await getUserRoom().then(() => setLoading(false));
       })();
     } else {
       setCurrentRooms(guetRooms);
@@ -95,22 +93,21 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
     }
   }, [currentUser.isAnonymous]);
 
-  const updateRooms = (roomId: string, updateInfos: Partial<RoomCollection>): void => {
-    setCurrentRooms(currentRooms.map((room) => {
-      if (room.id === roomId) {
-        socket.emit('updateRoom', { ...room, ...updateInfos });
-        return { ...room, ...updateInfos };
-      }
-      return room;
-    }));
+  const updateRoom = (roomId: string, updateInfos: Partial<RoomCollection>): void => {
+    setCurrentRooms(currentRooms.map((room) => (
+      room.id === roomId
+        ? { ...room, ...updateInfos }
+        : room
+    )));
   };
 
   const updateRoomInDatabase = async (
     roomId: string,
     updateInfos: Partial<RoomCollection>,
   ): Promise<void> => {
-    const roomDoc = doc(db, 'room', `${roomId}`);
-    const roomData = (await getDoc(roomDoc)).data();
+    const roomDoc = doc(db, 'rooms', `${roomId}`);
+    const roomData = (await getDoc(roomDoc)).data() as RoomCollection;
+    socket.emit('updateRoom', { ...roomData, ...updateInfos });
     setDoc(roomDoc, {
       ...roomData,
       ...updateInfos,
@@ -122,19 +119,17 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
 
     await updateRoomInDatabase(roomId, { imageURL });
 
-    updateRooms(roomId, { imageURL });
+    updateRoom(roomId, { imageURL });
   };
 
   const updateRoomName = async (name: string, id: string) => {
     updateRoomInDatabase(id, { name });
 
-    updateRooms(id, { name });
+    updateRoom(id, { name });
   };
 
   const exitRoom = async (roomId: string) => {
     const { users: roomUsers } = (await getDoc(doc(db, 'rooms', roomId))).data() as RoomCollection;
-
-    const { ...userData } = (await getDoc(doc(db, 'users', `${auth.currentUser?.uid}`))).data() as UserCollection;
 
     await updateRoomInDatabase(
       roomId,
@@ -143,12 +138,9 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
 
     updateUserInDatabase({ rooms: currentRooms.filter(({ id }) => id !== roomId) });
 
-    setCurrentRooms(currentRooms.filter(({ id }) => id !== roomId));
+    updateRoom(roomId, { users: roomUsers.filter(({ userId }) => userId !== currentUser.uid) });
 
-    socket.emit('updateRoom', {
-      ...userData,
-      rooms: currentRooms.filter(({ id }) => id !== roomId),
-    });
+    setCurrentRooms(currentRooms.filter(({ id }) => id !== roomId));
   };
 
   const joinRoom = async (id: string): Promise<RoomCollection> => {
@@ -170,34 +162,41 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
       }],
     });
 
-    socket.emit('updateRoom', {
-      ...roomData,
-      users: [...roomData.users, {
-        username: currentUser.username,
-        userId: currentUser.uid,
-        imageURL: currentUser.imageURL,
-      }],
-    });
+    setCurrentRooms([...currentRooms,
+      {
+        ...roomData,
+        users: [...roomData.users, {
+          username: currentUser.username,
+          userId: currentUser.uid,
+          imageURL: currentUser.imageURL,
+        }],
+      },
+    ]);
 
-    setCurrentRooms([...currentRooms, roomData]);
+    // socket.emit('updateRoom', {
+    //   ...roomData,
+    //   users: [...roomData.users, {
+    //     username: currentUser.username,
+    //     userId: currentUser.uid,
+    //     imageURL: currentUser.imageURL,
+    //   }],
+    // });
 
     return roomData;
   };
 
-  const sendMessage = async (message: string, room: RoomCollection) => {
+  const sendMessage = async (message: string, room: RoomCollection): Promise<void> => {
     const messagesDoc = doc(db, 'messages', room.id);
-    const messagesData = (await getDoc(messagesDoc)).data() as MessageCollection;
+    const messagesData = (await getDoc(messagesDoc)).data() as MessagesCollection;
     await setDoc(messagesDoc, {
-      roomName: messagesData.roomName || room.name,
-      roomId: messagesData.roomId || room.id,
-      createdAt: messagesData.createdAt || new Date().toISOString(),
+      roomId: messagesData.roomId,
       messages: [
         ...messagesData.messages,
         {
           id: auth.currentUser?.uid,
           username: currentUser.username,
           message,
-          date: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
         },
       ],
     });
@@ -224,27 +223,28 @@ export default function RoomsApiProvider({ children }: RoomProviderProps) {
     };
 
     await setDoc(doc(db, 'rooms', id), createdRoom);
+    await setDoc(doc(db, 'messages', id), { roomId: id, messages: [] });
     await updateUserInDatabase({ rooms: [...currentRooms, createdRoom] });
     setCurrentRooms([...currentRooms, createdRoom]);
 
     return createdRoom;
   };
 
-  const getMessages = async (roomId: string): Promise<MessageCollection[]> => {
-    const messages = (await getDoc(doc(db, 'messages', roomId))).data() as MessageCollection[];
+  const getMessages = async (roomId: string): Promise<MessageType[]> => {
+    const { messages } = (await getDoc(doc(db, 'messages', roomId))).data() as MessagesCollection;
     return messages;
   };
 
   const value = useMemo(() => ({
     createRoom,
     joinRoom,
-    getUserRooms,
+    getUserRoom,
     sendMessage,
     getMessages,
     updateRoomImage,
     exitRoom,
     updateRoomName,
-    updateRooms,
+    updateRoom,
     currentRooms,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [currentRooms]);

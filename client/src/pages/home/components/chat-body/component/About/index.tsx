@@ -30,7 +30,7 @@ export function About() {
           {' '}
           <Typography component="span" sx={{ fontWeight: 'bold' }}>
             Chat
-            <Typography component="span" sx={{ fontWeight: 'bold' }} color="#107E78">.io</Typography>
+            <Typography component="span" sx={{ fontWeight: 'bold' }} color="primary">.io</Typography>
           </Typography>
           ! Este projeto foi cuidadosamente elaborado para
           proporcionar uma plataforma versátil e dinâmica de criação de chats. Aqui, os
@@ -40,7 +40,7 @@ export function About() {
         <Typography>
           Desenvolvido como parte do meu
           {' '}
-          <Link target="_blank" rel="noreferrer" href="https://www.jp-sena.dev/" sx={{ fontWeight: 'bold' }} color="#107E78">
+          <Link target="_blank" rel="noreferrer" href="https://www.jp-sena.dev/" sx={{ fontWeight: 'bold' }} color="primary">
             portfólio pessoal
           </Link>
           , este projeto não só visa oferecer uma
@@ -50,18 +50,18 @@ export function About() {
         <Typography>
           No backend, a aplicação é impulsionada pelo
           {' '}
-          <Link target="_blank" rel="noreferrer" href="https://expressjs.com/pt-br/" sx={{ fontWeight: 'bold' }} color="#107E78">
+          <Link target="_blank" rel="noreferrer" href="https://expressjs.com/pt-br/" sx={{ fontWeight: 'bold' }} color="primary">
             Express
           </Link>
           , fornecendo uma base sólida e eficiente para o funcionamento do
           {' '}
-          <Link target="_blank" rel="noreferrer" href="https://socket.io/" sx={{ fontWeight: 'bold' }} color="#107E78">
+          <Link target="_blank" rel="noreferrer" href="https://socket.io/" sx={{ fontWeight: 'bold' }} color="primary">
             Socket.io
           </Link>
           , a tecnologia essencial por trás das conversas em tempo real. Todas as informações
           essenciais são armazenadas de forma segura e eficaz no
           {' '}
-          <Link target="_blank" rel="noreferrer" href="https://firebase.google.com/?hl=pt-br" sx={{ fontWeight: 'bold' }} color="#107E78">
+          <Link target="_blank" rel="noreferrer" href="https://firebase.google.com/?hl=pt-br" sx={{ fontWeight: 'bold' }} color="primary">
             Firebase
           </Link>
           , garantindo a confiabilidade e integridade dos dados.
@@ -71,11 +71,11 @@ export function About() {
           uma ferramenta poderosa para comunicação em tempo real. Este projeto foi desenvolvido por
           mim, e você pode explorar mais do meu trabalho no
           {' '}
-          <Link target="_blank" rel="noreferrer" href="https://github.com/joaopedr0sena" sx={{ fontWeight: 'bold' }} color="#107E78">
+          <Link target="_blank" rel="noreferrer" href="https://github.com/joaopedr0sena" sx={{ fontWeight: 'bold' }} color="primary">
             GitHub
           </Link>
           {' ou '}
-          <Link target="_blank" rel="noreferrer" href="https://www.jp-sena.dev/" sx={{ fontWeight: 'bold' }} color="#107E78">
+          <Link target="_blank" rel="noreferrer" href="https://www.jp-sena.dev/" sx={{ fontWeight: 'bold' }} color="primary">
             meu site
           </Link>
           . Estou empolgado em apresentar
@@ -84,7 +84,7 @@ export function About() {
           {' '}
           <Typography component="span" sx={{ fontWeight: 'bold' }}>
             Chat
-            <Typography component="span" sx={{ fontWeight: 'bold' }} color="#107E78">.io</Typography>
+            <Typography component="span" sx={{ fontWeight: 'bold' }} color="primary">.io</Typography>
           </Typography>
           {' '}
           tem a oferecer. Boas conversas aguardam por você no Chat.io!

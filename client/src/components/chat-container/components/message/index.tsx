@@ -1,16 +1,9 @@
 import { Avatar, Box, Typography } from '@mui/material';
-import { RoomCollection } from '../../../../contexts/rooms';
+import { MessageType, RoomCollection } from '../../../../contexts/rooms';
 import { useAuth } from '../../../../contexts/auth-context';
 
-export type MessageData = {
-  username: string;
-  message: string;
-  id: string
-  date: string
-};
-
 interface MessageProps {
-  data: MessageData;
+  data: MessageType;
   userId: string;
   isGrouped: boolean;
   room: RoomCollection;
@@ -93,7 +86,7 @@ export function MessageContainer({
                 fontSize: '12px',
               }}
             >
-              {`${new Date(data.date).getHours()}:${new Date(data.date).getMinutes()}`}
+              {`${new Date(data.createdAt).getHours()}:${new Date(data.createdAt).getMinutes()}`}
             </Typography>
           </Box>
         )}
