@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 import {
-  Avatar,
   Box,
+  Button,
   IconButton,
-  Paper,
   TextField,
   Typography,
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CloseIcon from '@mui/icons-material/Close';
-import SendIcon from '@mui/icons-material/Send';
-import { styled } from '@mui/material/styles';
+import SaveIcon from '@mui/icons-material/Save';
 import { LoadingButton } from '@mui/lab';
-import { RoomCollection, useRooms } from '../../contexts/rooms';
-import { useAuth } from '../../contexts/auth-context';
-import { useDialog } from '../../contexts/dialog';
+import { RoomCollection, useRooms } from '../../../contexts/rooms';
+import { useAuth } from '../../../contexts/auth-context';
+import { useDialog } from '../../../contexts/dialog';
+import { InputAvatar } from '../components/input-avatar';
+import { RoomParticipants } from './components/room-participants/room-participants';
 
 interface FormUpdateRoomProps {
   room: RoomCollection;
@@ -22,42 +22,23 @@ interface FormUpdateRoomProps {
   handleChangeName: (id: string, name: string) => void;
 }
 
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
-
 export function FormUpdateRoom({
   room,
   handleChangeClose,
   handleChangeName,
 }: FormUpdateRoomProps) {
-  const { uploadImage, updateRoomName, exitRoom } = useRooms();
+  const { updateRoomImage, updateRoomName, exitRoom } = useRooms();
   const { currentUser } = useAuth();
   const { dialogNeedsLogin } = useDialog();
   const [nameRoom, setNameRoom] = useState(!room.name ? '' : room.name);
   const [loading, setLoading] = useState(false);
-  const [prevImg, setPrevImg] = useState(null);
+  const [prevImg, setPrevImage] = useState<null | string>(null);
   const [file, setFile] = useState(null);
 
   useEffect(() => {
-    setPrevImg(null);
+    setPrevImage(null);
     setNameRoom(!room.name ? '' : room.name);
   }, [room.id, room.name]);
-
-  const handleChangeImg = async (imgFile: any) => {
-    setFile(imgFile);
-    const reader = new FileReader();
-    reader.readAsDataURL(imgFile);
-    reader.onload = (e) => setPrevImg((e.target as any).result);
-  };
 
   const HandleChangeSubmit = async () => {
     if (nameRoom !== room.name || file) {
@@ -68,7 +49,7 @@ export function FormUpdateRoom({
           setLoading(false);
         });
       }
-      if (file) await uploadImage(file, room.id).then(() => setLoading(false));
+      if (file) await updateRoomImage(file, room.id).then(() => setLoading(false));
     }
   };
 
@@ -103,18 +84,18 @@ export function FormUpdateRoom({
       >
         <CloseIcon sx={{ fontSize: '2rem' }} />
       </IconButton>
-      <Box component="label">
-        <Avatar
-          src={prevImg || room.imageURL}
-          sx={{
-            width: '150px',
-            height: '150px',
-            margin: '12px auto 0',
-            cursor: 'pointer',
-          }}
-        />
-        <VisuallyHiddenInput type="file" onChange={({ target }) => handleChangeImg((target.files as any)[0])} />
-      </Box>
+      <InputAvatar
+        imageURL={prevImg || room.imageURL}
+        setPrevImage={setPrevImage}
+        setFile={setFile}
+      />
+      <Typography sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+        Room ID:
+        {' '}
+        <Button size="small" onClick={() => navigator.clipboard.writeText(room.id)}>
+          {room.id}
+        </Button>
+      </Typography>
       <TextField
         fullWidth
         margin="normal"
@@ -130,7 +111,7 @@ export function FormUpdateRoom({
         loadingPosition="end"
         type="submit"
         sx={{ width: '100%' }}
-        endIcon={<SendIcon />}
+        endIcon={<SaveIcon />}
         variant="contained"
       >
         <span>Send</span>
@@ -154,21 +135,8 @@ export function FormUpdateRoom({
             gap: '12px',
           }}
         >
-          {room.users && room.users.map((e) => (
-            <Paper
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                width: '200px',
-                height: '50px',
-                p: '12px',
-                bgcolor: '#EFEFEF',
-              }}
-            >
-              <Avatar src={e.imageURL} />
-              <Typography>{e.username}</Typography>
-            </Paper>
+          {room.users && room.users.map((userInRoom) => (
+            <RoomParticipants avatar={userInRoom.imageURL} username={userInRoom.username} />
           ))}
         </Box>
       </Box>
