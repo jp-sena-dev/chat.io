@@ -12,7 +12,7 @@ module.exports = (io) => io.on('connection', (socket) => {
         id: userId,
         username,
         message,
-        date: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
       });
     });
   });
