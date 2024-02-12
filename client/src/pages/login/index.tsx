@@ -46,7 +46,7 @@ export default function Login() {
     if (username.length && doublePassword.length && emailIsValid && confirmDoublePasswordIsValid) {
       try {
         await signup(email, doublePassword, username);
-      } catch (e) {
+      } catch (e: any) {
         switch (e.message) {
           case 'auth/email-already-in-use':
             serRequestError('The email address is already in use by another account.');
@@ -66,7 +66,7 @@ export default function Login() {
     if (email.length) {
       try {
         await login(email, password);
-      } catch (e) {
+      } catch (e: any) {
         switch (e.message) {
           case 'auth/invalid-login-credentials':
             serRequestError('Invalid email or password. Please make sure you have entered the correct credentials.');

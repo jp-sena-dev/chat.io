@@ -18,6 +18,9 @@ export function AnimatedElement({ children, onScreen, direction }: AnimatedEleme
         height: '100%',
         width: '100%',
         zIndex: 2,
+        '@media (max-width:530px)': {
+          zIndex: 4,
+        },
       }}
     >
       {children}

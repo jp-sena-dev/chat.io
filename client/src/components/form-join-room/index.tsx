@@ -18,7 +18,7 @@ export function FormJoinRoom() {
       try {
         await joinRoom(roomId);
         setRoomId('');
-      } catch (e) {
+      } catch (e: any) {
         switch (e.message) {
           case 'room/room-already-entered':
             serRequestError('Great! You have already entered the room.');

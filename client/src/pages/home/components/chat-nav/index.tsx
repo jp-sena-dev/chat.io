@@ -12,7 +12,8 @@ interface ChatNavProps {
   userRooms: RoomCollection[];
   navScreen: string;
   bodyScreen: string;
-  currentRoom: RoomCollection | null,
+  currentRoom: RoomCollection | null;
+  hidden: boolean;
   setCurrentRoom: (param: RoomCollection) => void;
   setNavScreen: (param: string) => void
   setBodyScreen: (param: string) => void;
@@ -26,6 +27,7 @@ export function ChatNav({
   setCurrentRoom,
   setNavScreen,
   setBodyScreen,
+  hidden,
 }: ChatNavProps) {
   const { currentUser } = useAuth();
   const { dialogNeedsLogin } = useDialog();
@@ -35,9 +37,12 @@ export function ChatNav({
         bgcolor: '#efefef',
         borderBottomLeftRadius: '14px',
         position: 'relative',
-        display: 'flex',
         flexDirection: 'column',
         overflowY: 'hidden',
+        display: 'flex',
+        '@media (max-width:530px)': {
+          display: hidden ? 'none' : 'flex',
+        },
       }}
     >
       {!!userRooms && (

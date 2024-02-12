@@ -1,12 +1,17 @@
-import { Box, TextField } from '@mui/material';
+import { Box, IconButton, TextField } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { useState } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import { LoadingButton } from '@mui/lab';
 import { useAuth } from '../../../contexts/auth-context';
 import { useDialog } from '../../../contexts/dialog';
 import { InputAvatar } from '../components/input-avatar';
 
-export default function FormUpdateUser() {
+interface FormUpdateUserProps {
+  handleChangeClose: () => void;
+}
+
+export function FormUpdateUser({ handleChangeClose }: FormUpdateUserProps) {
   const { currentUser, updateUserImage, updateUsername } = useAuth();
   const { dialogNeedsLogin } = useDialog();
   const [username, setUsername] = useState(currentUser.username);
@@ -32,8 +37,19 @@ export default function FormUpdateUser() {
         display: 'flex',
         flexDirection: 'column',
         p: '12px',
+        position: 'relative',
       }}
     >
+      <IconButton
+        onClick={handleChangeClose}
+        sx={{
+          position: 'absolute',
+          right: 0,
+          top: 0,
+        }}
+      >
+        <CloseIcon sx={{ fontSize: '2rem' }} />
+      </IconButton>
       <Box
         sx={{
           display: 'flex',

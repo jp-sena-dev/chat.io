@@ -40,7 +40,7 @@ export function FormCreateRoom() {
       setFile('');
       setPrevImg(null);
       serRequestError('');
-    } catch (e) {
+    } catch (e: any) {
       switch (e.message) {
         case 'room/id-already-in-use':
           serRequestError('Sorry, the room has already been created.');

@@ -19,6 +19,7 @@ export default function Home() {
   const [room, setRoom] = useState<RoomCollection | null>(null);
   const [navScreen, setNavScreen] = useState('');
   const [bodyScreen, setBodyScreen] = useState('');
+  const [isBodyOrNav, setIsBodyOrNav] = useState<'nav' | 'body'>('nav');
 
   useEffect(() => {
     if (room && currentRooms && !currentUser.isAnonymous) {
@@ -43,18 +44,34 @@ export default function Home() {
     if (navScreen !== 'UpdateRoom' && navScreen !== 'userSettings') {
       setBodyScreen('');
     }
-  }, [navScreen]);
+    setIsBodyOrNav(navScreen || !room ? 'nav' : 'body');
+  }, [navScreen, room]);
+
+  console.log(navScreen, bodyScreen);
+  useEffect(() => {
+    setIsBodyOrNav(bodyScreen || room ? 'body' : 'nav');
+  }, [bodyScreen, room]);
 
   if (!currentUser.username) return <div>aaa</div>;
 
   return (
-    <Container component="main">
+    <Container
+      component="main"
+      sx={{
+        '@media (max-width:768px)': {
+          padding: 0,
+        },
+      }}
+    >
       <Box
         sx={{
           display: 'grid',
           gridTemplateRows: '10% 90%',
           height: '98vh',
           borderRadius: '14px',
+          '@media (max-width:768px)': {
+            height: '100vh',
+          },
         }}
       >
         <Box
@@ -77,7 +94,7 @@ export default function Home() {
               display: 'flex',
             }}
           >
-            <Fab size="small" sx={{ m: 1, color: 'black' }} onClick={() => setNavScreen('userSettings')}>
+            <Fab size="small" sx={{ m: 1, color: 'black' }} onClick={() => { setNavScreen('userSettings'); setIsBodyOrNav('nav'); }}>
               <SettingsIcon />
             </Fab>
             <Fab size="small" sx={{ m: 1, mr: 0, color: 'black' }} onClick={() => { setNavScreen('userSettings'); setBodyScreen('userProfileSettings'); }}>
@@ -91,12 +108,20 @@ export default function Home() {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: '25% 75%',
+            '@media (max-width:530px)': {
+              gridTemplateColumns: '100%',
+              gridTemplateRows: '100%',
+            },
+            '@media (min-width:530px)': {
+              gridTemplateColumns: '25% 75%',
+              gridTemplateRows: '100%',
+            },
             height: '100%',
           }}
         >
           <>
             <ChatNav
+              hidden={isBodyOrNav !== 'nav'}
               bodyScreen={bodyScreen}
               currentRoom={room}
               navScreen={navScreen}

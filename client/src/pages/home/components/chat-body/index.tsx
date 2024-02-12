@@ -5,7 +5,7 @@ import { FormCreateRoom } from '../../../../components/form-create-room';
 import { ChatContainer } from '../../../../components/chat-container';
 import { FormUpdateRoom } from '../../../../components/forms/form-update-room';
 import { FormJoinRoom } from '../../../../components/form-join-room';
-import FormUpdateUser from '../../../../components/forms/form-update-user';
+import { FormUpdateUser } from '../../../../components/forms/form-update-user';
 import { AnimatedBody } from './component/animated-body';
 import { About } from './component/About';
 
@@ -39,10 +39,11 @@ export function ChatBody({
           room={room}
           username={username}
           handleShowChatSettings={() => setBodyScreen('updateRoom')}
+          handleChangeClose={() => setBodyScreen('')}
         />
       )}
-      <AnimatedBody onScreen={bodyScreen === 'userProfileSettings'}><FormUpdateUser /></AnimatedBody>
-      <AnimatedBody onScreen={bodyScreen === 'about'}><About /></AnimatedBody>
+      <AnimatedBody onScreen={bodyScreen === 'userProfileSettings'}><FormUpdateUser handleChangeClose={() => setBodyScreen('')} /></AnimatedBody>
+      <AnimatedBody onScreen={bodyScreen === 'about'}><About handleChangeClose={() => setBodyScreen('')} /></AnimatedBody>
       {room && (
         <AnimatedBody onScreen={bodyScreen === 'updateRoom'}>
           <FormUpdateRoom handleChangeClose={() => setBodyScreen('')} handleChangeName={handleChangeName} room={room} />

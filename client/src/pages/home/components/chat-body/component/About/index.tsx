@@ -1,6 +1,16 @@
-import { Box, Link, Typography } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import {
+  Box,
+  IconButton,
+  Link,
+  Typography,
+} from '@mui/material';
 
-export function About() {
+interface AboutProps {
+  handleChangeClose: () => void;
+}
+
+export function About({ handleChangeClose }: AboutProps) {
   return (
     <Box
       sx={{
@@ -11,8 +21,19 @@ export function About() {
         display: 'flex',
         flexDirection: 'column',
         gap: '8px',
+        overflowX: 'auto',
       }}
     >
+      <IconButton
+        onClick={handleChangeClose}
+        sx={{
+          position: 'absolute',
+          right: 0,
+          top: 0,
+        }}
+      >
+        <CloseIcon sx={{ fontSize: '2rem' }} />
+      </IconButton>
       <Typography component="h1" sx={{ fontWeight: 'bold', textAlign: 'center', fontSize: '4rem' }} variant="h4">
         Chat
         <Typography component="span" sx={{ fontWeight: 'bold', fontSize: '4rem', color: '#107E78' }}>.io</Typography>
@@ -33,7 +54,7 @@ export function About() {
             <Typography component="span" sx={{ fontWeight: 'bold' }} color="primary">.io</Typography>
           </Typography>
           ! Este projeto foi cuidadosamente elaborado para
-          proporcionar uma plataforma versátil e dinâmica de criação de chats. Aqui, os
+          proporcionar uma plataforma versátil e dinâmica  de criação de chats. Aqui, os
           usuários têm total liberdade para criar suas próprias salas, podendo personalizá-las
           escolhendo nome e foto exclusivos.
         </Typography>

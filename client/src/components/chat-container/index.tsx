@@ -5,6 +5,7 @@ import {
   Typography,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
 import { MessageContainer } from './components/message';
 import { MessageInput } from './components/message-input';
 import { MessageType, RoomCollection, useRooms } from '../../contexts/rooms';
@@ -16,9 +17,15 @@ interface ChatContainerProps {
   username: string;
   room: RoomCollection;
   handleShowChatSettings: () => void;
+  handleChangeClose: () => void;
 }
 
-export function ChatContainer({ username = 'guest', room, handleShowChatSettings }: ChatContainerProps) {
+export function ChatContainer({
+  username = 'guest',
+  room,
+  handleShowChatSettings,
+  handleChangeClose,
+}: ChatContainerProps) {
   const { currentUser } = useAuth();
   const {
     sendMessage,
@@ -60,7 +67,9 @@ export function ChatContainer({ username = 'guest', room, handleShowChatSettings
 
     socket.on('comunitMessage', handleMessages);
 
-    if (messageRef.current) messageRef.current.scrollTop = messageRef.current.scrollHeight;
+    if (messageRef.current) {
+      (messageRef.current as any).scrollTop = (messageRef.current as any).scrollHeight;
+    }
   }, [serverMessages]);
 
   const handleSendMassage = (message: string) => {
@@ -97,27 +106,44 @@ export function ChatContainer({ username = 'guest', room, handleShowChatSettings
               width: '100%',
             }}
           >
-            <Box>
-              <Typography
-                component="h1"
-                variant="h5"
+            <Box
+              sx={{
+                display: 'flex',
+              }}
+            >
+              <IconButton
                 sx={{
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
+                  display: 'none',
+                  '@media (max-width:530px)': {
+                    display: 'block',
+                  },
                 }}
-                onClick={handleShowChatSettings}
+                onClick={handleChangeClose}
               >
-                {room.name}
-              </Typography>
-              <Typography
-                component="p"
-                color="primary"
-                sx={{
-                  fontSize: '12px',
-                }}
-              >
-                {`${room.users.length} members`}
-              </Typography>
+                <ArrowBackIos sx={{ fontSize: '2rem' }} />
+              </IconButton>
+              <div>
+                <Typography
+                  component="h1"
+                  variant="h5"
+                  sx={{
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                  }}
+                  onClick={handleShowChatSettings}
+                >
+                  {room.name}
+                </Typography>
+                <Typography
+                  component="p"
+                  color="primary"
+                  sx={{
+                    fontSize: '12px',
+                  }}
+                >
+                  {`${room.users.length} members`}
+                </Typography>
+              </div>
             </Box>
             <IconButton onClick={handleShowChatSettings}>
               <MoreVertIcon />
