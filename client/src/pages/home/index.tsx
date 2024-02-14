@@ -47,9 +47,12 @@ export default function Home() {
     setIsBodyOrNav(navScreen || !room ? 'nav' : 'body');
   }, [navScreen, room]);
 
-  console.log(navScreen, bodyScreen);
   useEffect(() => {
-    setIsBodyOrNav(bodyScreen || room ? 'body' : 'nav');
+    if (!bodyScreen && !room) {
+      setIsBodyOrNav('nav');
+    } else {
+      setIsBodyOrNav(bodyScreen || room ? 'body' : 'nav');
+    }
   }, [bodyScreen, room]);
 
   if (!currentUser.username) return <div>aaa</div>;
@@ -132,6 +135,7 @@ export default function Home() {
             />
             <ChatBody
               bodyScreen={bodyScreen}
+              resetCurrentRoom={() => setRoom(null)}
               room={room}
               username={currentUser.username}
               setBodyScreen={setBodyScreen}

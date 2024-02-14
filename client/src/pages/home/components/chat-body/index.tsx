@@ -15,6 +15,7 @@ interface ChatBodyProps {
   username: string;
   setBodyScreen: (param: string) => void;
   handleChangeName: (id: string, name: string) => void;
+  resetCurrentRoom: () => void;
 }
 
 export function ChatBody({
@@ -23,6 +24,7 @@ export function ChatBody({
   username,
   setBodyScreen,
   handleChangeName,
+  resetCurrentRoom,
 }: ChatBodyProps) {
   return (
     <Box sx={{
@@ -39,7 +41,7 @@ export function ChatBody({
           room={room}
           username={username}
           handleShowChatSettings={() => setBodyScreen('updateRoom')}
-          handleChangeClose={() => setBodyScreen('')}
+          handleChangeClose={() => { setBodyScreen(''); resetCurrentRoom(); }}
         />
       )}
       <AnimatedBody onScreen={bodyScreen === 'userProfileSettings'}><FormUpdateUser handleChangeClose={() => setBodyScreen('')} /></AnimatedBody>
