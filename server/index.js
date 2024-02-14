@@ -4,6 +4,8 @@ const http = require('http');
 const ioServer = require('socket.io');
 const roomSocket = require('./sockets/room')
 
+const port = process.env.PORT || 3000;
+
 const app = express();
 const server = http.createServer(app);
 
@@ -21,5 +23,5 @@ app.get('/', (_req, res) => {
 });
 
 server.listen(3000, () => {
-  console.log('server is listening on port 3000');
+  console.log(`server is listening on port ${3000}`);
 });
