@@ -1,6 +1,6 @@
 # :globe_with_meridians: [Chat.io](https://chat-io-phi.vercel.app)
 
-:wave: Bem-vindo ao Chat.io! Nosso objetivo é proporcionar uma experiência de comunicação em tempo real através de `chats`. Utilizando `WebSockets` para conexões instantâneas entre os usuários, permitindo conversas fluidas e interativas.
+:wave: Boas vindas ao Chat.io! Nosso objetivo é proporcionar uma experiência de comunicação em tempo real através de `chats`. Utilizando `WebSockets` para conexões instantâneas entre os usuários, permitindo conversas fluidas e interativas.
 
 ![telas](https://github.com/jp-sena-dev/chat.io/assets/85967112/1a50e052-ecb5-4356-80e2-250da5ce015a)
 >### [Visite a Aplicação](https://chat-io-phi.vercel.app)
