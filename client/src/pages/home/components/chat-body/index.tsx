@@ -1,10 +1,9 @@
 import { Box } from '@mui/material';
-
 import { RoomCollection } from '../../../../contexts/rooms';
-import { FormCreateRoom } from '../../../../components/form-create-room';
+import { FormCreateRoom } from '../../../../components/forms/form-create-room';
 import { ChatContainer } from '../../../../components/chat-container';
 import { FormUpdateRoom } from '../../../../components/forms/form-update-room';
-import { FormJoinRoom } from '../../../../components/form-join-room';
+import { FormJoinRoom } from '../../../../components/forms/form-join-room';
 import { FormUpdateUser } from '../../../../components/forms/form-update-user';
 import { AnimatedBody } from './component/animated-body';
 import { About } from './component/About';

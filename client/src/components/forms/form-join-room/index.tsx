@@ -4,7 +4,7 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import { useState } from 'react';
 import { LoadingButton } from '@mui/lab';
-import { useRooms } from '../../contexts/rooms';
+import { useRooms } from '../../../contexts/rooms';
 
 export function FormJoinRoom() {
   const { joinRoom } = useRooms();

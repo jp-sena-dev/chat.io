@@ -1,26 +1,9 @@
-import {
-  Avatar,
-  Box,
-  TextField,
-  Typography,
-  styled,
-} from '@mui/material';
+import { Box, TextField, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SendIcon from '@mui/icons-material/Send';
 import { useState } from 'react';
-import { useRooms } from '../../contexts/rooms';
-
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
+import { useRooms } from '../../../contexts/rooms';
+import { InputAvatar } from '../components/input-avatar';
 
 export function FormCreateRoom() {
   const { createRoom } = useRooms();
@@ -80,18 +63,11 @@ export function FormCreateRoom() {
           gap: '18px',
         }}
       >
-        <Box component="label">
-          <Avatar
-            src={prevImg || ''}
-            sx={{
-              width: '150px',
-              height: '150px',
-              margin: '12px auto 0',
-              cursor: 'pointer',
-            }}
-          />
-          <VisuallyHiddenInput type="file" onChange={({ target }) => handleChangeFile((target.files as any)[0])} />
-        </Box>
+        <InputAvatar
+          imageURL={prevImg || ''}
+          setPrevImage={handleChangeFile}
+          setFile={setFile}
+        />
         <div>
           <TextField
             required
