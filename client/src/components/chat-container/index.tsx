@@ -36,6 +36,7 @@ export function ChatContainer({
   const [clientMessage, setClientMesssage] = useState('');
   const [serverMessages, setServerMassages] = useState<MessageType[]>();
   const [currentRoomId, setCurrentRoomId] = useState('');
+
   useEffect(() => {
     if (room.id !== currentRoomId) {
       if (currentRoomId) socket.emit('leaveRoom', currentRoomId);

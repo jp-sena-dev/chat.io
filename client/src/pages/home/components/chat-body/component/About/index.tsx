@@ -36,7 +36,7 @@ export function About({ handleChangeClose }: AboutProps) {
       </IconButton>
       <Typography component="h1" sx={{ fontWeight: 'bold', textAlign: 'center', fontSize: '4rem' }} variant="h4">
         Chat
-        <Typography component="span" sx={{ fontWeight: 'bold', fontSize: '4rem', color: '#107E78' }}>.io</Typography>
+        <Typography component="span" color="primary" sx={{ fontWeight: 'bold', fontSize: '4rem' }}>.io</Typography>
       </Typography>
       <Box
         sx={{

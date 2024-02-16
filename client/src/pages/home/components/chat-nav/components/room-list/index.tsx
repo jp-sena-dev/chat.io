@@ -26,10 +26,10 @@ export function RoomList({
           bottom: '8px',
           left: '8px',
           color: 'white',
-          bgcolor: '#107E78',
+          bgcolor: ({ palette }) => palette.primary.main,
           zIndex: 1,
           ':hover': {
-            bgcolor: '#0a4b47',
+            bgcolor: ({ palette }) => palette.primary.dark,
           },
         }}
       >

@@ -46,8 +46,12 @@ export function MessageContainer({
         }}
       />
       <Box
+        bgcolor={({ palette }) => (
+          data.id === userId
+            ? palette.primary.main
+            : palette.primary.contrastText
+        )}
         sx={{
-          bgcolor: data.id === userId ? '#107E78' : '#EFEFEF',
           p: '12px',
           maxWidth: '50%',
           borderRadius: () => {

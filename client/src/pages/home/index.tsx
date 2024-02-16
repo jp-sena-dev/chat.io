@@ -24,7 +24,7 @@ export default function Home() {
   useEffect(() => {
     if (room && currentRooms && !currentUser.isAnonymous) {
       setRoom((prevRoom) => (
-        currentRooms.find((r) => r.id === (prevRoom as RoomCollection).id)
+        currentRooms.find(({ id }) => id === (prevRoom as RoomCollection).id)
       ) as RoomCollection);
     }
   }, [currentRooms, room, currentUser]);
@@ -90,7 +90,7 @@ export default function Home() {
         >
           <Typography component="h1" sx={{ fontWeight: 'bold' }} variant="h4">
             Chat
-            <Typography component="span" sx={{ fontWeight: 'bold', fontSize: '2rem', color: '#107E78' }}>.io</Typography>
+            <Typography component="span" color="primary" sx={{ fontWeight: 'bold', fontSize: '2rem' }}>.io</Typography>
           </Typography>
           <Box
             sx={{

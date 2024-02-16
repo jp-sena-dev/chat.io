@@ -18,7 +18,7 @@ export function RoomParticipants({
         width: '200px',
         height: '50px',
         p: '12px',
-        bgcolor: '#EFEFEF',
+        bgcolor: 'contrastText',
       }}
     >
       <Avatar src={avatar} />
